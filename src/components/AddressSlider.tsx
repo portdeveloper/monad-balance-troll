@@ -43,9 +43,6 @@ export function AddressSlider({ onAddressChange }: AddressSliderProps) {
     const address = generateAddressFromSliderValue(value[0])
     setDisplayAddress(address)
 
-    // Debug logging
-    console.log('Generated address:', address)
-    console.log('Is valid address:', isAddress(address))
 
     if (isAddress(address)) {
       onAddressChange(address)
@@ -142,6 +139,9 @@ export function AddressSlider({ onAddressChange }: AddressSliderProps) {
             </div>
             <div className="text-muted-foreground">
               CTRL+ARROW: ±10,000 POSITIONS • TOTAL: 10,000,000,000 POSITIONS
+            </div>
+            <div className="text-muted-foreground">
+              ENTER: CHECK BALANCE FOR SELECTED ADDRESS
             </div>
             <div className="text-primary text-xs mt-2">
               ESTIMATED TIME TO FIND SPECIFIC ADDRESS: 1-6 MONTHS OF DEDICATED SLIDING

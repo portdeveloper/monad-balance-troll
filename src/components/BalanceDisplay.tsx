@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useBalance } from 'wagmi'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,22 +13,31 @@ export function BalanceDisplay({ address }: BalanceDisplayProps) {
   const [shouldCheck, setShouldCheck] = useState(false)
   const [checkedAddress, setCheckedAddress] = useState<string | null>(null)
 
-  // Debug logging
-  console.log('BalanceDisplay - address:', address)
-  console.log('BalanceDisplay - shouldCheck:', shouldCheck)
-  console.log('BalanceDisplay - checkedAddress:', checkedAddress)
 
   const { data: balance, isError, isLoading } = useBalance({
     address: shouldCheck && address ? (address as `0x${string}`) : undefined,
     chainId: monadTestnet.id,
   })
 
-  const handleCheckBalance = () => {
+  const handleCheckBalance = useCallback(() => {
     if (address) {
       setShouldCheck(true)
       setCheckedAddress(address)
     }
-  }
+  }, [address])
+
+  // Enter key support for checking balance
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && address && (!shouldCheck || checkedAddress !== address)) {
+        event.preventDefault()
+        handleCheckBalance()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [address, shouldCheck, checkedAddress, handleCheckBalance])
 
   const renderContent = () => {
     if (!address) {
@@ -54,7 +63,7 @@ export function BalanceDisplay({ address }: BalanceDisplayProps) {
             className="font-mono bg-primary text-primary-foreground hover:bg-primary/90 brutalist-border"
             size="lg"
           >
-            CHECK BALANCE ON MONAD TESTNET
+            CHECK BALANCE ON MONAD TESTNET [ENTER]
           </Button>
         </div>
       )
