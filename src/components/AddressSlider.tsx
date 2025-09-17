@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { isAddress } from 'viem'
+import { isAddress, getAddress } from 'viem'
 
 interface AddressSliderProps {
   onAddressChange: (address: string | null) => void
@@ -25,15 +25,27 @@ export function AddressSlider({ onAddressChange }: AddressSliderProps) {
     const ratioScaled = BigInt(Math.floor(ratio * 1000000000000)) // 1 trillion scale for precision
     const addressBigInt = (maxAddress * ratioScaled) / BigInt(1000000000000)
 
-    // Convert back to hex and pad to 40 characters
-    const hexString = addressBigInt.toString(16).toUpperCase().padStart(40, '0')
-    return `0x${hexString}`
+    // Convert back to hex and pad to 40 characters (lowercase for proper checksum)
+    const hexString = addressBigInt.toString(16).toLowerCase().padStart(40, '0')
+    const rawAddress = `0x${hexString}`
+
+    // Convert to proper checksum address
+    try {
+      return getAddress(rawAddress)
+    } catch (error) {
+      console.warn('Invalid address generated:', rawAddress, error)
+      return rawAddress // fallback to raw address
+    }
   }, [])
 
   const handleSliderChange = useCallback((value: number[]) => {
     setSliderValue(value)
     const address = generateAddressFromSliderValue(value[0])
     setDisplayAddress(address)
+
+    // Debug logging
+    console.log('Generated address:', address)
+    console.log('Is valid address:', isAddress(address))
 
     if (isAddress(address)) {
       onAddressChange(address)

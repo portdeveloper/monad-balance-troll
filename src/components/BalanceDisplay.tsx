@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useBalance } from 'wagmi'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,11 @@ interface BalanceDisplayProps {
 export function BalanceDisplay({ address }: BalanceDisplayProps) {
   const [shouldCheck, setShouldCheck] = useState(false)
   const [checkedAddress, setCheckedAddress] = useState<string | null>(null)
+
+  // Debug logging
+  console.log('BalanceDisplay - address:', address)
+  console.log('BalanceDisplay - shouldCheck:', shouldCheck)
+  console.log('BalanceDisplay - checkedAddress:', checkedAddress)
 
   const { data: balance, isError, isLoading } = useBalance({
     address: shouldCheck && address ? (address as `0x${string}`) : undefined,
